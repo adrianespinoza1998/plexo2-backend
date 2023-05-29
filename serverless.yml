@@ -1,0 +1,49 @@
+service: plexo2-backend
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  environment:
+    DYNAMODB_MESSAGE_TABLE: ${self:service}-messageTable-${sls:stage}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'dynamodb:PutItem'
+            - 'dynamodb:Get*'
+            - 'dynamodb:Scan*'
+            - 'dynamodb:UpdateItem'
+            - 'dynamodb:DeleteItem'
+          Resource: arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-messageTable-${sls:stage}
+
+functions:
+  api:
+    handler: src/index.handler
+    events:
+      - httpApi: '*'
+  saveMessages:
+    handler: src/index.saveMessages
+    events:
+      - rabbitmq:
+          arn: arn:aws:mq:us-east-1:089289930066:broker:RabbitAmbientalMetrics:b-3c02432f-da26-4323-a177-265838c969f5
+          queue: prueba
+          basicAuthArn: arn:aws:secretsmanager:us-east-1:089289930066:secret:RabbitSecret-khux5r
+          
+resources:
+  Resources:
+    MessageTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: primary_key
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: primary_key
+            KeyType: HASH
+        TableName: ${self:service}-messageTable-${sls:stage}
+
+plugins:
+  - serverless-offline
