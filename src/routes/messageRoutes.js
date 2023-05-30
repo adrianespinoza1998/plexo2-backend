@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const {
-  createMessageExpress,
+  // createMessageExpress,
   getMessages,
 } = require("../controllers/messageController");
 
@@ -8,6 +8,6 @@ const router = Router();
 
 router.get("/", getMessages);
 
-router.post("/", createMessageExpress);
+// router.post("/", createMessageExpress);
 
 module.exports = router;

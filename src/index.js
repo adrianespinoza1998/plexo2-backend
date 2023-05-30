@@ -2,7 +2,6 @@ const serverless = require("serverless-http");
 const express = require("express");
 const {
   createMessage,
-  getMessages,
 } = require("./controllers/messageController");
 const messageRoutes = require("./routes/messageRoutes");
 
@@ -26,4 +25,3 @@ app.use((req, res, next) => {
 module.exports.handler = serverless(app);
 module.exports.app = app;
 module.exports.saveMessages = createMessage;
-module.exports.getMessages = getMessages;
