@@ -1,22 +1,22 @@
 const MessageService = require("../services/messageService");
 
 const createMessage = async (event) => {
-  const records = event.Records;
+
+  const data = event.rmqMessagesByQueue["prueba::/"][0].data;
+  const buff = Buffer.from(data, 'base64');
+  const message = buff.toString('ascii');
+
   const messageService = new MessageService();
 
-  try {
-    for (const record of records) {
-      const message = record.body;
-      await messageService.createMessage(message);
-    }
+  const isCreated = await messageService.createMessage(message);
 
+  if(isCreated) {
+    console.log("Mensajes guardados en DynamoDB exitosamente.");
     return {
       statusCode: 200,
       body: "Mensajes guardados en DynamoDB exitosamente.",
     };
-  } catch (error) {
-    console.log(error);
-
+  }else{
     return {
       statusCode: 500,
       body: "Error al guardar los mensajes en DynamoDB.",
